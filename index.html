@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Familjeekonomi</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 20px auto; padding: 0 10px; }
+    h1 { color: #2c3e50; }
+    form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    input, select, button { padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
+    button { background-color: #27ae60; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:disabled { background-color: #95a5a6; }
+    ul { list-style: none; padding: 0; }
+    li { background: #f8f9fa; margin-bottom: 8px; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+
+  <h1>Familjeekonomi</h1>
+
+  <!-- Formulär för att lägga till ny utgift -->
+  <form id="transaktionForm">
+    <input type="text" id="beskrivning" placeholder="Beskrivning (t.ex. ICA)" required>
+    <input type="number" id="belopp" placeholder="Belopp (kr)" step="0.01" required>
+    <select id="kategori">
+      <option value="Mat">Mat</option>
+      <option value="Boende">Boende</option>
+      <option value="Transport">Transport</option>
+      <option value="Övrigt">Övrigt</option>
+    </select>
+    <select id="registreradAv">
+      <option value="Anton">Anton</option>
+      <option value="Mona">Mona</option>
+    </select>
+    <button type="submit" id="submitBtn">Spara utgift</button>
+  </form>
+
+  <h2>Senaste utgifterna</h2>
+  <ul id="transaktionsLista">
+    <li>Laddar utgifter...</li>
+  </ul>
+
+  <script src="app.js"></script>
+</body>
+</html>
