@@ -1,68 +1,46 @@
-// Klistra in din Web App URL från Google Apps Script här:
-const API_URL = "https://script.google.com/macros/s/AKfycbzBsEowRWX-SkqXnP_DlP113HMGwQRbk22YR1pa-LfG70OB0p4Fg-bNm5559Yup3HuB/exec";
+// 1. Ersätt med din URL från Google Apps Script (Deploy > Web app URL)
+const API_URL = 'https://script.google.com/macros/s/AKfycbzWIiWXONz7sxWpCJW7IMiWFi8MHmqBELqi6RbGUVY-MiFwDF6b_-aHJFozAtdXGpjp/exec';
 
-const form = document.getElementById('transaktionForm');
-const lista = document.getElementById('transaktionsLista');
-const submitBtn = document.getElementById('submitBtn');
-
-// Hämta och visa alla transaktioner
-async function hamtaTransaktioner() {
+/**
+ * Hämta data från kalkylarket (doGet)
+ */
+async function fetchTransactions(sheetName = 'Transaktioner') {
   try {
-    const response = await fetch(`${API_URL}?sheet=Transaktioner`);
-    const data = await response.json();
+    const response = await fetch(`${API_URL}?sheet=${encodeURIComponent(sheetName)}`);
     
-    lista.innerHTML = "";
-    if (data.length === 0) {
-      lista.innerHTML = "<li>Inga utgifter registrerade än.</li>";
-      return;
+    if (!response.ok) {
+      throw new Error(`HTTP-fel! Status: ${response.status}`);
     }
 
-    // Visa transaktionerna i omvänd ordning (senaste först)
-    data.reverse().forEach(t => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        <span><strong>${t.Beskrivning || 'Utan namn'}</strong> (${t.Kategori}) - <em>${t.RegistreradAv || ''}</em></span>
-        <span><strong>${t.Belopp} kr</strong></span>
-      `;
-      lista.appendChild(li);
-    });
-  } catch (err) {
-    lista.innerHTML = "<li>Kunde inte hämta data från kalkylarket.</li>";
-    console.error(err);
+    const data = await response.json();
+    console.log('Hämtad data från Google Sheets:', data);
+    return data;
+  } catch (error) {
+    console.error('Kunde inte hämta data:', error);
   }
 }
 
-// Skicka ny utgift till Google Sheets
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  submitBtn.disabled = true;
-  submitBtn.innerText = "Sparar...";
-
-  const nyUtgift = {
-    sheet: 'Transaktioner',
-    Beskrivning: document.getElementById('beskrivning').value,
-    Belopp: parseFloat(document.getElementById('belopp').value),
-    Kategori: document.getElementById('kategori').value,
-    RegistreradAv: document.getElementById('registreradAv').value,
-    Datum: new Date().toISOString().split('T')[0]
-  };
-
+/**
+ * Spara ny rad till kalkylarket (doPost)
+ */
+async function addTransaction(transactionData) {
   try {
-    await fetch(API_URL, {
+    // text/plain används för att undvika CORS-preflight (OPTIONS)
+    const response = await fetch(API_URL, {
       method: 'POST',
-      body: JSON.stringify(nyUtgift)
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+      },
+      body: JSON.stringify(transactionData),
     });
 
-    form.reset();
-    await hamtaTransaktioner(); // Uppdatera listan när det sparas
-  } catch (err) {
-    alert("Något gick fel när utgiften skulle sparas.");
-    console.error(err);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Spara utgift";
+    const result = await response.json();
+    console.log('Svar från Google Apps Script:', result);
+    return result;
+  } catch (error) {
+    console.error('Kunde inte spara data:', error);
   }
-});
+}
 
-// Ladda data när sidan startar
-hamtaTransaktioner();
+// Körs automatiskt när app.js laddas för att testa anslutningen
+fetchTransactions();
