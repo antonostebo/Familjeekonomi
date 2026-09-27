@@ -22,21 +22,41 @@ function switchTab(tabName, btn) {
 /**
  * HÄMTA ALL DATA FRÅN GOOGLE SHEETS
  */
+/**
+ * HÄMTA ALL DATA FRÅN GOOGLE SHEETS
+ */
 async function loadDataFromSheets() {
   try {
     const response = await fetch(`${API_URL}?sheet=Transaktioner`);
     const data = await response.json();
 
     if (Array.isArray(data) && data.length > 0) {
-      // Filtrera ut objekt och bygg upp kategorier/rader från kalkylarket
-      items = data.map((row, idx) => ({
-        id: row.ID || `item-${idx}`,
-        title: row.Beskrivning || row.Titel || 'Namnlös',
-        amount: parseFloat(row.Belopp) || 0,
-        cat: (row.Kategori || 'ÖVRIGT').toUpperCase()
-      }));
+      // Hjälpfunktion för att hitta värde oavsett skiftläge på kolumnrubriken
+      const getVal = (row, keys) => {
+        const foundKey = Object.keys(row).find(k => keys.includes(k.toLowerCase().trim()));
+        return foundKey ? row[foundKey] : null;
+      };
 
-      // Uppdatera kategorilistan dynamiskt utifrån vad som finns i kalkylarket
+      // Bygg upp objekt från raderna i Sheets
+      items = data.map((row, idx) => {
+        const rawBelopp = getVal(row, ['belopp', 'belopp (kr)', 'summa', 'pris']) || 0;
+        // Rensa bort 'kr', mellanslag och gör om komma till punkt
+        const cleanAmount = typeof rawBelopp === 'string' 
+          ? parseFloat(rawBelopp.replace(/[^\d,-]/g, '').replace(',', '.')) || 0 
+          : parseFloat(rawBelopp) || 0;
+
+        const rawCat = getVal(row, ['kategori', 'cat', 'typ']) || 'ÖVRIGT';
+        const title = getVal(row, ['beskrivning', 'titel', 'namn', 'id']) || `Rad ${idx + 1}`;
+
+        return {
+          id: `item-${idx}`,
+          title: title,
+          amount: cleanAmount,
+          cat: rawCat.toString().toUpperCase().trim()
+        };
+      });
+
+      // Uppdatera kategorilistan dynamiskt utifrån vad som hittades i kalkylarket
       const fetchedCats = [...new Set(items.map(i => i.cat))];
       if (fetchedCats.length > 0) {
         categories = fetchedCats;
