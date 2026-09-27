@@ -2,31 +2,59 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Beräkna - Ekonomi</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-color: #f7f6f2;
+      --bg-color: #f2f2f7;
       --card-bg: #ffffff;
-      --text-main: #2c3e50;
+      --text-main: #000000;
       --text-muted: #8e8e93;
       --accent-purple: #f0edff;
       --accent-purple-text: #6b5b95;
       --accent-green: #e8f8f0;
       --accent-green-text: #1b7a42;
-      --input-bg: #f2f2f7;
-      --border-radius: 16px;
+      --accent-red: #ffebeb;
+      --accent-red-text: #c0392b;
+      --input-bg: #efeff4;
+      --border-radius: 14px;
     }
 
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 16px 16px 100px 16px; width: 100%; }
+    * { 
+      box-sizing: border-box; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    body {
+      padding: 16px 16px 110px 16px;
+    }
 
     .tab-content { display: none; width: 100%; }
     .tab-content.active { display: block; }
 
-    .header-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-    .card { background: var(--card-bg); border-radius: var(--border-radius); padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .header-title { font-size: 28px; font-weight: 700; margin-bottom: 16px; margin-top: 8px; }
+    
+    .card { 
+      background: var(--card-bg); 
+      border-radius: var(--border-radius); 
+      padding: 16px; 
+      margin-bottom: 16px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
+      width: 100%; 
+    }
+    
     .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
 
     .pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
@@ -36,35 +64,113 @@
     .pill-green { background: var(--accent-green); color: var(--accent-green-text); }
 
     .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .input-label main { font-weight: 600; font-size: 15px; }
-    .input-label sub { font-size: 11px; color: var(--text-muted); display: block; }
+    .input-label main { font-weight: 600; font-size: 16px; }
+    .input-label sub { font-size: 12px; color: var(--text-muted); display: block; }
 
-    .num-input, .text-input, select { background: var(--input-bg); border: none; border-radius: 10px; padding: 10px 12px; font-size: 15px; font-weight: 600; }
-    .num-input { text-align: right; width: 120px; }
+    .num-input, .text-input, select { 
+      background: var(--input-bg); 
+      border: none; 
+      border-radius: 10px; 
+      padding: 12px; 
+      font-size: 16px; 
+      font-weight: 600; 
+      outline: none;
+    }
+    
+    .num-input { text-align: right; width: 130px; }
     .text-input, select { width: 100%; margin-bottom: 12px; }
 
-    .category-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 16px; margin-bottom: 8px; border-top: 1px solid #f0f0f0; padding-top: 12px; }
+    .category-header { 
+      display: flex; 
+      justify-content: space-between; 
+      font-size: 13px; 
+      font-weight: 700; 
+      color: var(--text-muted); 
+      text-transform: uppercase; 
+      margin-top: 16px; 
+      margin-bottom: 10px; 
+      border-top: 1px solid #f0f0f0; 
+      padding-top: 12px; 
+    }
 
     .result-card { background: var(--accent-green); border-radius: var(--border-radius); padding: 16px; margin-bottom: 16px; }
-    .result-title { color: var(--accent-green-text); font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .result-title { color: var(--accent-green-text); font-size: 24px; font-weight: 700; margin-bottom: 12px; }
 
-    .split-box { display: flex; gap: 12px; margin-bottom: 12px; }
+    .split-box { display: flex; gap: 10px; margin-bottom: 12px; }
     .person-box { background: white; border-radius: 10px; padding: 12px; flex: 1; }
     .person-box .name { font-size: 12px; color: var(--text-muted); }
     .person-box .amount { font-size: 18px; font-weight: 700; margin: 4px 0; }
 
     .chart-container { position: relative; width: 100%; max-width: 280px; margin: 16px auto; }
-    .btn-action { background: #2c3e50; color: white; width: 100%; border: none; padding: 14px; border-radius: var(--border-radius); font-size: 15px; font-weight: 600; cursor: pointer; }
+    
+    .btn-action { 
+      background: #2c3e50; 
+      color: white; 
+      width: 100%; 
+      border: none; 
+      padding: 16px; 
+      border-radius: var(--border-radius); 
+      font-size: 16px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      active: opacity 0.8;
+    }
 
-    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid #e5e5ea; display: flex; justify-content: space-around; padding: 10px 0 20px 0; z-index: 1000; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); border: none; background: none; cursor: pointer; }
-    .nav-item.active { color: var(--text-main); font-weight: 700; }
-    .nav-icon { font-size: 20px; margin-bottom: 2px; }
+    .cat-list-item { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 12px 0; 
+      border-bottom: 1px solid #f0f0f0; 
+      font-weight: 600;
+    }
+    
+    .btn-delete-cat { 
+      background: var(--accent-red); 
+      color: var(--accent-red-text); 
+      border: none; 
+      border-radius: 8px; 
+      padding: 8px 12px; 
+      font-weight: 600; 
+      font-size: 13px; 
+      cursor: pointer; 
+    }
+
+    /* Mobilanpassad Bottom Navigation Bar (iOS-style) */
+    .nav-bar { 
+      position: fixed; 
+      bottom: 0; 
+      left: 0; 
+      right: 0; 
+      background: rgba(255, 255, 255, 0.92); 
+      backdrop-filter: blur(10px);
+      border-top: 0.5px solid #d1d1d6; 
+      display: flex; 
+      justify-content: space-around; 
+      padding: 10px 0 calc(10px + env(safe-area-inset-bottom)) 0; 
+      z-index: 1000; 
+      width: 100%;
+    }
+    
+    .nav-item { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      font-size: 10px; 
+      color: var(--text-muted); 
+      border: none; 
+      background: none; 
+      cursor: pointer; 
+      flex: 1;
+    }
+    
+    .nav-item.active { color: #007aff; font-weight: 700; }
+    .nav-icon { font-size: 22px; margin-bottom: 2px; }
   </style>
 </head>
 <body>
 
-  <!-- TAB: BERÄKNA -->
+  <!-- FLIK 1: BERÄKNA -->
   <div id="tab-berakna" class="tab-content active">
     <div class="header-title">Beräkna</div>
 
@@ -102,7 +208,7 @@
       <span class="pill pill-green">GEMENSAMMA</span>
 
       <div id="dynamic-expenses">
-        <!-- Dynamiska rader hamnar här -->
+        <!-- Dynamiska utgifter renderas här -->
       </div>
     </div>
 
@@ -138,14 +244,21 @@
     </div>
   </div>
 
-  <!-- TAB: INSTÄLLNINGAR -->
+  <!-- FLIK 2: INSTÄLLNINGAR -->
   <div id="tab-installningar" class="tab-content">
     <div class="header-title">Inställningar</div>
 
     <div class="card">
-      <div class="card-title">📁 LÄGG TILL KATEGORI</div>
+      <div class="card-title">📁 SKAPA NY KATEGORI</div>
       <input type="text" id="new-cat-name" class="text-input" placeholder="t.ex. NÖJE">
       <button class="btn-action" onclick="addCategory()">+ Skapa kategori</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗑️ BEFINTLIGA KATEGORIER</div>
+      <div id="category-list">
+        <!-- Listas dynamiskt med radera-knappar -->
+      </div>
     </div>
 
     <div class="card">
@@ -157,6 +270,7 @@
     </div>
   </div>
 
+  <!-- BOTTENMENY -->
   <div class="nav-bar">
     <button class="nav-item active" onclick="switchTab('berakna', this)">
       <span class="nav-icon">📊</span>
