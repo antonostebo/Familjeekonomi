@@ -1,5 +1,5 @@
 // 1. KLISTRA IN DIN WEB APP URL FRÅN GOOGLE APPS SCRIPT HÄR:
-const API_URL = 'https://script.google.com/macros/s/AKfycbzWIiWXONz7sxWpCJW7IMiWFi8MHmqBELqi6RbGUVY-MiFwDF6b_-aHJFozAtdXGpjp/exec'; 
+const API_URL = https://script.google.com/macros/s/AKfycbzWIiWXONz7sxWpCJW7IMiWFi8MHmqBELqi6RbGUVY-MiFwDF6b_-aHJFozAtdXGpjp/exec; 
 
 let expenseChart = null;
 let categories = ['HUS', 'TRANSPORT', 'MAT'];
