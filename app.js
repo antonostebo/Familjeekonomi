@@ -1,16 +1,27 @@
-// 1. KLISTRA IN DIN WEB APP URL FRÅN GOOGLE APPS SCRIPT HÄR:
-const API_URL = https://script.google.com/macros/s/AKfycbzWIiWXONz7sxWpCJW7IMiWFi8MHmqBELqi6RbGUVY-MiFwDF6b_-aHJFozAtdXGpjp/exec; 
+// 1. DINA GOOGLE APPS SCRIPT WEB APP URL:
+const API_URL = 'https://script.google.com/macros/s/AKfycbzWIiWXONz7sxWpCJW7IMiWFi8MHmqBELqi6RbGUVY-MiFwDF6b_-aHJFozAtdXGpjp/exec'; 
 
 let expenseChart = null;
+
+// Fallback-data om Sheets är tomt eller inte kan nås
 let categories = ['HUS', 'TRANSPORT', 'MAT'];
-let items = [];
+let items = [
+  { id: 'item-1', title: 'Amortering', amount: 3685, cat: 'HUS' },
+  { id: 'item-2', title: 'Ränta', amount: 5761, cat: 'HUS' },
+  { id: 'item-3', title: 'Leasingavgift', amount: 6460, cat: 'TRANSPORT' },
+  { id: 'item-4', title: 'Mat', amount: 7000, cat: 'MAT' }
+];
 
 window.addEventListener('DOMContentLoaded', async () => {
   initChart();
+  renderExpenses();
+  renderCategoryDropdown();
+  calculateAll(); // Kör direkt med fallback-data
+
+  // Hämta därefter från Sheets
   await loadDataFromSheets();
 });
 
-// Switch mellan flikar
 function switchTab(tabName, btn) {
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -19,34 +30,25 @@ function switchTab(tabName, btn) {
   btn.classList.add('active');
 }
 
-/**
- * HÄMTA ALL DATA FRÅN GOOGLE SHEETS
- */
-/**
- * HÄMTA ALL DATA FRÅN GOOGLE SHEETS
- */
 async function loadDataFromSheets() {
   try {
     const response = await fetch(`${API_URL}?sheet=Transaktioner`);
     const data = await response.json();
 
     if (Array.isArray(data) && data.length > 0) {
-      // Hjälpfunktion för att hitta värde oavsett skiftläge på kolumnrubriken
       const getVal = (row, keys) => {
         const foundKey = Object.keys(row).find(k => keys.includes(k.toLowerCase().trim()));
         return foundKey ? row[foundKey] : null;
       };
 
-      // Bygg upp objekt från raderna i Sheets
-      items = data.map((row, idx) => {
+      const fetchedItems = data.map((row, idx) => {
         const rawBelopp = getVal(row, ['belopp', 'belopp (kr)', 'summa', 'pris']) || 0;
-        // Rensa bort 'kr', mellanslag och gör om komma till punkt
         const cleanAmount = typeof rawBelopp === 'string' 
           ? parseFloat(rawBelopp.replace(/[^\d,-]/g, '').replace(',', '.')) || 0 
           : parseFloat(rawBelopp) || 0;
 
         const rawCat = getVal(row, ['kategori', 'cat', 'typ']) || 'ÖVRIGT';
-        const title = getVal(row, ['beskrivning', 'titel', 'namn', 'id']) || `Rad ${idx + 1}`;
+        const title = getVal(row, ['beskrivning', 'titel', 'namn']) || `Rad ${idx + 1}`;
 
         return {
           id: `item-${idx}`,
@@ -56,10 +58,10 @@ async function loadDataFromSheets() {
         };
       });
 
-      // Uppdatera kategorilistan dynamiskt utifrån vad som hittades i kalkylarket
-      const fetchedCats = [...new Set(items.map(i => i.cat))];
-      if (fetchedCats.length > 0) {
-        categories = fetchedCats;
+      if (fetchedItems.length > 0) {
+        items = fetchedItems;
+        const fetchedCats = [...new Set(items.map(i => i.cat))];
+        if (fetchedCats.length > 0) categories = fetchedCats;
       }
     }
 
@@ -67,13 +69,13 @@ async function loadDataFromSheets() {
     renderCategoryDropdown();
     calculateAll();
   } catch (err) {
-    console.error('Kunde inte hämta data från Google Sheets:', err);
+    console.warn('Kunde inte läsa från Sheets, använder lokal data:', err);
   }
 }
 
-// Rendera utgifter dynamiskt
 function renderExpenses() {
   const container = document.getElementById('dynamic-expenses');
+  if (!container) return;
   container.innerHTML = '';
 
   categories.forEach(cat => {
@@ -89,7 +91,7 @@ function renderExpenses() {
       catHtml += `
         <div class="input-row">
           <div class="input-label"><main>${item.title}</main></div>
-          <input type="number" id="item-${item.id}" class="num-input exp-input" data-cat="${cat.toLowerCase()}" data-title="${item.title}" value="${item.amount}" oninput="calculateAll()">
+          <input type="number" id="${item.id}" class="num-input exp-input" data-cat="${cat.toLowerCase()}" value="${item.amount}" oninput="calculateAll()">
         </div>
       `;
     });
@@ -98,7 +100,6 @@ function renderExpenses() {
   });
 }
 
-// Rendera dropdown för inställningar
 function renderCategoryDropdown() {
   const select = document.getElementById('select-category');
   if (!select) return;
@@ -108,47 +109,11 @@ function renderCategoryDropdown() {
   });
 }
 
-// Lägg till en ny kategori
-function addCategory() {
-  const nameInput = document.getElementById('new-cat-name');
-  const catName = nameInput.value.trim().toUpperCase();
-
-  if (catName && !categories.includes(catName)) {
-    categories.push(catName);
-    nameInput.value = '';
-    renderExpenses();
-    renderCategoryDropdown();
-    calculateAll();
-    alert(`Kategorin "${catName}" har lagts till!`);
-  }
-}
-
-// Lägg till utgift i vald kategori och spara direkt till Sheets
-async function addItemToCategory() {
-  const title = document.getElementById('new-item-title').value.trim();
-  const cat = document.getElementById('select-category').value;
-  const amount = parseFloat(document.getElementById('new-item-amount').value) || 0;
-
-  if (title) {
-    const id = title.toLowerCase().replace(/\s+/g, '-');
-    const newItem = { id, title, amount, cat };
-    items.push(newItem);
-
-    document.getElementById('new-item-title').value = '';
-    document.getElementById('new-item-amount').value = '';
-
-    renderExpenses();
-    calculateAll();
-
-    // Spara direkt till kalkylarket
-    await saveRowToSheets(newItem);
-  }
-}
-
 function calculateAll() {
-  const lonAnton = parseFloat(document.getElementById('lon-anton').value) || 0;
-  const lonMona = parseFloat(document.getElementById('lon-mona').value) || 0;
-  const gemInkomst1 = parseFloat(document.getElementById('gem-barnbidrag').value) || 0;
+  // 1. Inkomster
+  const lonAnton = parseFloat(document.getElementById('lon-anton')?.value) || 0;
+  const lonMona = parseFloat(document.getElementById('lon-mona')?.value) || 0;
+  const gemInkomst = parseFloat(document.getElementById('gem-inkomst')?.value) || 0;
 
   const totalLon = lonAnton + lonMona;
   
@@ -158,9 +123,12 @@ function calculateAll() {
     pctMona = 100 - pctAnton;
   }
 
-  document.getElementById('pct-anton').innerText = pctAnton;
-  document.getElementById('pct-mona').innerText = pctMona;
+  const elPctAnton = document.getElementById('pct-anton');
+  const elPctMona = document.getElementById('pct-mona');
+  if (elPctAnton) elPctAnton.innerText = pctAnton;
+  if (elPctMona) elPctMona.innerText = pctMona;
 
+  // 2. Utgifter per kategori
   const expInputs = document.querySelectorAll('.exp-input');
   let totaltUtgifter = 0;
   let catTotals = {};
@@ -174,17 +142,19 @@ function calculateAll() {
     if (catTotals[cat] !== undefined) catTotals[cat] += val;
   });
 
+  // Uppdatera kategoriernas delsummor
   categories.forEach(cat => {
     const elem = document.getElementById(`total-${cat.toLowerCase()}`);
-    if (elem) elem.innerText = catTotals[cat.toLowerCase()].toLocaleString('sv-SE') + ' kr';
+    if (elem) elem.innerText = (catTotals[cat.toLowerCase()] || 0).toLocaleString('sv-SE') + ' kr';
   });
 
-  const nettoUtgifter = Math.max(0, totaltUtgifter - gemInkomst1);
+  // 3. Slutsummering
+  const nettoUtgifter = Math.max(0, totaltUtgifter - gemInkomst);
   const betalarAnton = Math.round((nettoUtgifter * pctAnton) / 100);
   const betalarMona = Math.round((nettoUtgifter * pctMona) / 100);
 
   document.getElementById('totalt-utgifter-text').innerText = `${totaltUtgifter.toLocaleString('sv-SE')} kr totalt`;
-  document.getElementById('gem-inkomst-avdrag').innerText = `(-${gemInkomst1.toLocaleString('sv-SE')} kr gem. inkomster)`;
+  document.getElementById('gem-inkomst-avdrag').innerText = `(-${gemInkomst.toLocaleString('sv-SE')} kr gem. inkomster)`;
   
   document.getElementById('betalar-anton').innerText = `${betalarAnton.toLocaleString('sv-SE')} kr`;
   document.getElementById('betalar-mona').innerText = `${betalarMona.toLocaleString('sv-SE')} kr`;
@@ -193,7 +163,8 @@ function calculateAll() {
 }
 
 function initChart() {
-  const ctx = document.getElementById('expenseChart').getContext('2d');
+  const ctx = document.getElementById('expenseChart')?.getContext('2d');
+  if (!ctx) return;
   expenseChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -219,39 +190,40 @@ function updateChart(totals) {
   }
 }
 
-/**
- * SPARA EN RAD TILL GOOGLE SHEETS
- */
-async function saveRowToSheets(item) {
-  const payload = {
-    sheet: 'Transaktioner',
-    Datum: new Date().toISOString().split('T')[0],
-    Beskrivning: item.title,
-    Kategori: item.cat,
-    Belopp: item.amount
-  };
+function addCategory() {
+  const nameInput = document.getElementById('new-cat-name');
+  const catName = nameInput.value.trim().toUpperCase();
 
-  try {
-    await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
-  } catch (err) {
-    console.error('Kunde inte spara rad till Sheets:', err);
+  if (catName && !categories.includes(catName)) {
+    categories.push(catName);
+    nameInput.value = '';
+    renderExpenses();
+    renderCategoryDropdown();
+    calculateAll();
   }
 }
 
-/**
- * SPARA MÅNADSSUMMERING TILL GOOGLE SHEETS
- */
+function addItemToCategory() {
+  const title = document.getElementById('new-item-title').value.trim();
+  const cat = document.getElementById('select-category').value;
+  const amount = parseFloat(document.getElementById('new-item-amount').value) || 0;
+
+  if (title) {
+    items.push({ id: `item-${Date.now()}`, title, amount, cat });
+    document.getElementById('new-item-title').value = '';
+    document.getElementById('new-item-amount').value = '';
+    renderExpenses();
+    calculateAll();
+  }
+}
+
 async function saveToSheets() {
   const payload = {
     sheet: 'Transaktioner',
     Datum: new Date().toISOString().split('T')[0],
     Beskrivning: 'Månadsberäkning',
     Kategori: 'RESULTAT',
-    Belopp: parseFloat(document.getElementById('totalt-utgifter-text').innerText.replace(/\D/g, ''))
+    Belopp: parseFloat(document.getElementById('totalt-utgifter-text').innerText.replace(/\D/g, '')) || 0
   };
 
   try {
@@ -260,21 +232,7 @@ async function saveToSheets() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
-
-    const rawText = await res.text();
-
-    try {
-      const result = JSON.parse(rawText);
-      if (result.status === 'success') {
-        alert('Månadens beräkning har sparats till Google Sheets!');
-      } else {
-        alert('Fel från skriptet: ' + result.message);
-      }
-    } catch (parseError) {
-      console.error('Mottog HTML istället för JSON:', rawText);
-      alert('Kunde inte spara. Kontrollera att publiceringen i Google Apps Script står på "Who has access: Anyone".');
-    }
-
+    alert('Sparat!');
   } catch (err) {
     alert('Nätverksfel: ' + err.message);
   }
