@@ -1,5 +1,5 @@
 // 1. DINA GOOGLE APPS SCRIPT WEB APP URL:
-const API_URL = 'https://script.google.com/macros/s/AKfycbzWIiWXONz7sxWpCJW7IMiWFi8MHmqBELqi6RbGUVY-MiFwDF6b_-aHJFozAtdXGpjp/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbx1TZZ3pE_ZnVNMtcAyk3nRnbqWCGUJlcTlqbA-ZEFBB_GDcgyM6x7_cb2u0L52sLoD/exec'; 
 
 let expenseChart = null;
 
