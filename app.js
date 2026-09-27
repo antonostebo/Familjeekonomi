@@ -240,11 +240,22 @@ async function saveToSheets() {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
-    const result = await res.json();
-    if (result.status === 'success') {
-      alert('Månadens beräkning har sparats till Google Sheets!');
+
+    const rawText = await res.text();
+
+    try {
+      const result = JSON.parse(rawText);
+      if (result.status === 'success') {
+        alert('Månadens beräkning har sparats till Google Sheets!');
+      } else {
+        alert('Fel från skriptet: ' + result.message);
+      }
+    } catch (parseError) {
+      console.error('Mottog HTML istället för JSON:', rawText);
+      alert('Kunde inte spara. Kontrollera att publiceringen i Google Apps Script står på "Who has access: Anyone".');
     }
+
   } catch (err) {
-    alert('Kunde inte spara data: ' + err.message);
+    alert('Nätverksfel: ' + err.message);
   }
 }
