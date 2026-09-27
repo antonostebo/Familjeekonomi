@@ -2,9 +2,8 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Beräkna - Ekonomi</title>
-  <!-- Chart.js för cirkeldiagrammet -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -17,388 +16,156 @@
       --accent-green: #e8f8f0;
       --accent-green-text: #1b7a42;
       --input-bg: #f2f2f7;
-      --border-radius: 14px;
+      --border-radius: 16px;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 16px 16px 100px 16px; width: 100%; }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      margin: 0;
-      padding: 16px 16px 80px 16px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
+    .tab-content { display: none; width: 100%; }
+    .tab-content.active { display: block; }
 
-    .header-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
+    .header-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+    .card { background: var(--card-bg); border-radius: var(--border-radius); padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-bg);
-      padding: 12px 16px;
-      border-radius: var(--border-radius);
-      margin-bottom: 16px;
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .top-bar .date {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .badge-v {
-      background: var(--input-bg);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 12px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-    }
-
-    .card-title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
     .pill-blue { background: #e6f0ff; color: #0056b3; }
     .pill-orange { background: #fff0e6; color: #d96b00; }
     .pill-purple { background: var(--accent-purple); color: var(--accent-purple-text); }
     .pill-green { background: var(--accent-green); color: var(--accent-green-text); }
 
-    .input-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
+    .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .input-label main { font-weight: 600; font-size: 15px; }
+    .input-label sub { font-size: 11px; color: var(--text-muted); display: block; }
 
-    .input-label {
-      display: flex;
-      flex-direction: column;
-    }
+    .num-input, .text-input, select { background: var(--input-bg); border: none; border-radius: 10px; padding: 10px 12px; font-size: 15px; font-weight: 600; }
+    .num-input { text-align: right; width: 120px; }
+    .text-input, select { width: 100%; margin-bottom: 12px; }
 
-    .input-label main {
-      font-weight: 600;
-      font-size: 15px;
-    }
+    .category-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 16px; margin-bottom: 8px; border-top: 1px solid #f0f0f0; padding-top: 12px; }
 
-    .input-label sub {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+    .result-card { background: var(--accent-green); border-radius: var(--border-radius); padding: 16px; margin-bottom: 16px; }
+    .result-title { color: var(--accent-green-text); font-size: 22px; font-weight: 700; margin-bottom: 12px; }
 
-    .num-input {
-      background: var(--input-bg);
-      border: none;
-      border-radius: 10px;
-      padding: 8px 12px;
-      text-align: right;
-      font-size: 16px;
-      font-weight: 600;
-      width: 110px;
-    }
+    .split-box { display: flex; gap: 12px; margin-bottom: 12px; }
+    .person-box { background: white; border-radius: 10px; padding: 12px; flex: 1; }
+    .person-box .name { font-size: 12px; color: var(--text-muted); }
+    .person-box .amount { font-size: 18px; font-weight: 700; margin: 4px 0; }
 
-    .row-total {
-      font-size: 14px;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
+    .chart-container { position: relative; width: 100%; max-width: 280px; margin: 16px auto; }
+    .btn-action { background: #2c3e50; color: white; width: 100%; border: none; padding: 14px; border-radius: var(--border-radius); font-size: 15px; font-weight: 600; cursor: pointer; }
 
-    .category-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-top: 16px;
-      margin-bottom: 8px;
-      border-top: 1px solid #f0f0f0;
-      padding-top: 12px;
-    }
-
-    /* Resultat-sektion */
-    .result-card {
-      background: var(--accent-green);
-      border-radius: var(--border-radius);
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .result-title {
-      color: var(--accent-green-text);
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .split-box {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .person-box {
-      background: white;
-      border-radius: 10px;
-      padding: 12px;
-      flex: 1;
-    }
-
-    .person-box .name {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .person-box .amount {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 4px 0;
-    }
-
-    .person-box .percent {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .chart-container {
-      position: relative;
-      width: 100%;
-      max-width: 260px;
-      margin: 16px auto;
-    }
-
-    .btn-save {
-      background: #2c3e50;
-      color: white;
-      width: 100%;
-      border: none;
-      padding: 14px;
-      border-radius: var(--border-radius);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* Bottom Navigation Bar */
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      border-top: 1px solid #e5e5ea;
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 10px;
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-
-    .nav-item.active {
-      color: var(--text-main);
-      font-weight: 700;
-    }
-
-    .nav-icon {
-      font-size: 18px;
-      margin-bottom: 2px;
-    }
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid #e5e5ea; display: flex; justify-content: space-around; padding: 10px 0 20px 0; z-index: 1000; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-muted); border: none; background: none; cursor: pointer; }
+    .nav-item.active { color: var(--text-main); font-weight: 700; }
+    .nav-icon { font-size: 20px; margin-bottom: 2px; }
   </style>
 </head>
 <body>
 
-  <div class="header-title">Beräkna</div>
+  <!-- TAB: BERÄKNA -->
+  <div id="tab-berakna" class="tab-content active">
+    <div class="header-title">Beräkna</div>
 
-  <div class="top-bar">
-    <span>Ifyllt</span>
-    <span class="date" id="current-date">lördag 25 juli 2026</span>
-    <span class="badge-v">v17</span>
-  </div>
-
-  <!-- INKOMSTER -->
-  <div class="card">
-    <div class="card-title">💰 INKOMSTER</div>
-    
-    <div>
-      <span class="pill pill-blue">Anton</span>
-      <div class="input-row">
-        <div class="input-label">
-          <main>Lön</main>
-          <sub>efter skatt</sub>
+    <div class="card">
+      <div class="card-title">💰 INKOMSTER</div>
+      
+      <div>
+        <span class="pill pill-blue">Anton</span>
+        <div class="input-row">
+          <div class="input-label"><main>Lön</main><sub>efter skatt</sub></div>
+          <input type="number" id="lon-anton" class="num-input" value="41853" oninput="calculateAll()">
         </div>
-        <input type="number" id="lon-anton" class="num-input" value="41853" oninput="calculateAll()">
       </div>
-    </div>
 
-    <div style="margin-top: 12px;">
-      <span class="pill pill-orange">Mona</span>
-      <div class="input-row">
-        <div class="input-label">
-          <main>Lön</main>
-          <sub>efter skatt</sub>
+      <div style="margin-top: 12px;">
+        <span class="pill pill-orange">Mona</span>
+        <div class="input-row">
+          <div class="input-label"><main>Lön</main><sub>efter skatt</sub></div>
+          <input type="number" id="lon-mona" class="num-input" value="25000" oninput="calculateAll()">
         </div>
-        <input type="number" id="lon-mona" class="num-input" value="25000" oninput="calculateAll()">
-      </div>
-    </div>
-
-    <div style="margin-top: 16px;">
-      <span class="pill pill-purple">GEMENSAMMA INKOMSTER</span>
-      <div class="input-row">
-        <div class="input-label"><main>Barnbidrag</main></div>
-        <input type="number" id="gem-barnbidrag" class="num-input" value="2650" oninput="calculateAll()">
-      </div>
-      <div class="input-row">
-        <div class="input-label"><main>Uttag amorteringsspar</main></div>
-        <input type="number" id="gem-amortering" class="num-input" value="2000" oninput="calculateAll()">
-      </div>
-    </div>
-  </div>
-
-  <!-- UTGIFTER -->
-  <div class="card">
-    <div class="card-title">🧾 UTGIFTER</div>
-    <span class="pill pill-green">GEMENSAMMA</span>
-
-    <!-- HUS -->
-    <div class="category-header">
-      <span>HUS</span>
-      <span class="row-total" id="total-hus">0 kr</span>
-    </div>
-    <div class="input-row">
-      <div class="input-label"><main>Amortering</main></div>
-      <input type="number" id="utg-amortering" class="num-input exp-input" data-cat="hus" value="3685" oninput="calculateAll()">
-    </div>
-    <div class="input-row">
-      <div class="input-label"><main>Ränta</main></div>
-      <input type="number" id="utg-ranta" class="num-input exp-input" data-cat="hus" value="5761" oninput="calculateAll()">
-    </div>
-    <div class="input-row">
-      <div class="input-label"><main>Underhåll</main></div>
-      <input type="number" id="utg-hus-underhall" class="num-input exp-input" data-cat="hus" value="3000" oninput="calculateAll()">
-    </div>
-
-    <!-- TRANSPORT -->
-    <div class="category-header">
-      <span>TRANSPORT</span>
-      <span class="row-total" id="total-transport">0 kr</span>
-    </div>
-    <div class="input-row">
-      <div class="input-label"><main>Leasingavgift</main></div>
-      <input type="number" id="utg-leasing" class="num-input exp-input" data-cat="transport" value="6460" oninput="calculateAll()">
-    </div>
-    <div class="input-row">
-      <div class="input-label"><main>Underhåll</main></div>
-      <input type="number" id="utg-trans-underhall" class="num-input exp-input" data-cat="transport" value="500" oninput="calculateAll()">
-    </div>
-
-    <!-- MAT -->
-    <div class="category-header">
-      <span>MAT</span>
-      <span class="row-total" id="total-mat">0 kr</span>
-    </div>
-    <div class="input-row">
-      <div class="input-label"><main>Mat</main></div>
-      <input type="number" id="utg-mat" class="num-input exp-input" data-cat="mat" value="7000" oninput="calculateAll()">
-    </div>
-  </div>
-
-  <!-- RESULTAT -->
-  <div class="card">
-    <div class="card-title">📊 RESULTAT</div>
-    
-    <div class="result-card">
-      <div class="card-title" style="color: var(--accent-green-text);">GEMENSAMMA UTGIFTER</div>
-      <div class="result-title" id="totalt-utgifter-text">0 kr totalt</div>
-      <div style="font-size: 13px; color: var(--accent-green-text); margin-bottom: 12px;" id="gem-inkomst-avdrag">
-        (-0 kr gem. inkomster)
       </div>
 
-      <div class="split-box">
-        <div class="person-box">
-          <div class="name">Anton betalar (<span id="pct-anton">0</span>%)</div>
-          <div class="amount" id="betalar-anton">0 kr</div>
-        </div>
-        <div class="person-box">
-          <div class="name">Mona betalar (<span id="pct-mona">0</span>%)</div>
-          <div class="amount" id="betalar-mona">0 kr</div>
+      <div style="margin-top: 16px;">
+        <span class="pill pill-purple">GEMENSAMMA INKOMSTER</span>
+        <div class="input-row">
+          <div class="input-label"><main>Barnbidrag / Gemensamt</main></div>
+          <input type="number" id="gem-inkomst" class="num-input" value="4650" oninput="calculateAll()">
         </div>
       </div>
     </div>
 
-    <div class="card-title">UTGIFTER PER KATEGORI</div>
-    <div class="chart-container">
-      <canvas id="expenseChart"></canvas>
+    <!-- UTGIFTER -->
+    <div class="card">
+      <div class="card-title">🧾 UTGIFTER</div>
+      <span class="pill pill-green">GEMENSAMMA</span>
+
+      <div id="dynamic-expenses">
+        <!-- Dynamiska rader hamnar här -->
+      </div>
     </div>
 
-    <button class="btn-save" onclick="saveToSheets()">💾 Spara denna månad</button>
+    <!-- RESULTAT -->
+    <div class="card">
+      <div class="card-title">📊 RESULTAT</div>
+      
+      <div class="result-card">
+        <div class="card-title" style="color: var(--accent-green-text);">GEMENSAMMA UTGIFTER</div>
+        <div class="result-title" id="totalt-utgifter-text">0 kr totalt</div>
+        <div style="font-size: 13px; color: var(--accent-green-text); margin-bottom: 12px;" id="gem-inkomst-avdrag">
+          (-0 kr gem. inkomster)
+        </div>
+
+        <div class="split-box">
+          <div class="person-box">
+            <div class="name">Anton betalar (<span id="pct-anton">0</span>%)</div>
+            <div class="amount" id="betalar-anton">0 kr</div>
+          </div>
+          <div class="person-box">
+            <div class="name">Mona betalar (<span id="pct-mona">0</span>%)</div>
+            <div class="amount" id="betalar-mona">0 kr</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-title">UTGIFTER PER KATEGORI</div>
+      <div class="chart-container">
+        <canvas id="expenseChart"></canvas>
+      </div>
+
+      <button class="btn-action" onclick="saveToSheets()">💾 Spara denna månad</button>
+    </div>
   </div>
 
-  <!-- BOTTEN-MENY -->
+  <!-- TAB: INSTÄLLNINGAR -->
+  <div id="tab-installningar" class="tab-content">
+    <div class="header-title">Inställningar</div>
+
+    <div class="card">
+      <div class="card-title">📁 LÄGG TILL KATEGORI</div>
+      <input type="text" id="new-cat-name" class="text-input" placeholder="t.ex. NÖJE">
+      <button class="btn-action" onclick="addCategory()">+ Skapa kategori</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">➕ LÄGG TILL UTGIFT</div>
+      <input type="text" id="new-item-title" class="text-input" placeholder="Beskrivning">
+      <select id="select-category" class="text-input"></select>
+      <input type="number" id="new-item-amount" class="text-input" placeholder="Belopp (kr)">
+      <button class="btn-action" onclick="addItemToCategory()">+ Lägg till i Beräkna</button>
+    </div>
+  </div>
+
   <div class="nav-bar">
-    <a href="#" class="nav-item active">
+    <button class="nav-item active" onclick="switchTab('berakna', this)">
       <span class="nav-icon">📊</span>
       <span>BERÄKNA</span>
-    </a>
-    <a href="#" class="nav-item">
-      <span class="nav-icon">📅</span>
-      <span>HISTORIK</span>
-    </a>
-    <a href="#" class="nav-item">
-      <span class="nav-icon">📈</span>
-      <span>LOGG</span>
-    </a>
-    <a href="#" class="nav-item">
+    </button>
+    <button class="nav-item" onclick="switchTab('installningar', this)">
       <span class="nav-icon">⚙️</span>
       <span>INSTÄLLNINGAR</span>
-    </a>
+    </button>
   </div>
 
   <script src="app.js"></script>
