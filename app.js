@@ -203,20 +203,63 @@ function addCategory() {
   }
 }
 
-function addItemToCategory() {
-  const title = document.getElementById('new-item-title').value.trim();
-  const cat = document.getElementById('select-category').value;
-  const amount = parseFloat(document.getElementById('new-item-amount').value) || 0;
+/**
+ * LÄGG TILL NY UTGIFT I INSTÄLLNINGAR & SPARA TILL SHEETS
+ */
+async function addItemToCategory() {
+  const titleInput = document.getElementById('new-item-title');
+  const catSelect = document.getElementById('select-category');
+  const amountInput = document.getElementById('new-item-amount');
 
-  if (title) {
-    items.push({ id: `item-${Date.now()}`, title, amount, cat });
-    document.getElementById('new-item-title').value = '';
-    document.getElementById('new-item-amount').value = '';
-    renderExpenses();
-    calculateAll();
+  const title = titleInput.value.trim();
+  const cat = catSelect.value;
+  const amount = parseFloat(amountInput.value) || 0;
+
+  if (!title) {
+    alert('Vänligen fyll i en beskrivning.');
+    return;
+  }
+
+  // 1. Skapa den nya utgiftsposten lokalt
+  const newItem = {
+    id: `item-${Date.now()}`,
+    title: title,
+    amount: amount,
+    cat: cat
+  };
+
+  items.push(newItem);
+
+  // 2. Rensa fälten i formuläret
+  titleInput.value = '';
+  amountInput.value = '';
+
+  // 3. Uppdatera gränssnittet direkt
+  renderExpenses();
+  calculateAll();
+
+  // 4. Skicka raden direkt till Google Sheets
+  try {
+    const payload = {
+      sheet: 'Transaktioner',
+      Datum: new Date().toISOString().split('T')[0],
+      Beskrivning: newItem.title,
+      Kategori: newItem.cat,
+      Belopp: newItem.amount
+    };
+
+    await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+
+    alert(`"${title}" lades till under ${cat} och sparades i Google Sheets!`);
+  } catch (err) {
+    console.error('Kunde inte spara ny rad till Sheets:', err);
+    alert('Kunde inte spara raden till Google Sheets. Kontrollera anslutningen.');
   }
 }
-
 async function saveToSheets() {
   const payload = {
     sheet: 'Transaktioner',
