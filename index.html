@@ -21,10 +21,10 @@
       --border-radius: 14px;
     }
 
-    * { 
-      box-sizing: border-box; 
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-      -webkit-tap-highlight-color: transparent; 
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
@@ -37,24 +37,22 @@
       overflow-x: hidden;
     }
 
-    body {
-      padding: 16px 16px 110px 16px;
-    }
+    body { padding: 16px 16px 110px 16px; }
 
     .tab-content { display: none; width: 100%; }
     .tab-content.active { display: block; }
 
     .header-title { font-size: 28px; font-weight: 700; margin-bottom: 16px; margin-top: 8px; }
-    
-    .card { 
-      background: var(--card-bg); 
-      border-radius: var(--border-radius); 
-      padding: 16px; 
-      margin-bottom: 16px; 
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
-      width: 100%; 
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      width: 100%;
     }
-    
+
     .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
 
     .pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
@@ -62,35 +60,44 @@
     .pill-orange { background: #fff0e6; color: #d96b00; }
     .pill-purple { background: var(--accent-purple); color: var(--accent-purple-text); }
     .pill-green { background: var(--accent-green); color: var(--accent-green-text); }
+    .pill-grey { background: var(--input-bg); color: var(--text-muted); }
 
     .input-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .input-label main { font-weight: 600; font-size: 16px; }
     .input-label sub { font-size: 12px; color: var(--text-muted); display: block; }
 
-    .num-input, .text-input, select { 
-      background: var(--input-bg); 
-      border: none; 
-      border-radius: 10px; 
-      padding: 12px; 
-      font-size: 16px; 
-      font-weight: 600; 
+    .num-input, .text-input, select {
+      background: var(--input-bg);
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 600;
       outline: none;
     }
-    
+
     .num-input { text-align: right; width: 130px; }
     .text-input, select { width: 100%; margin-bottom: 12px; }
 
-    .category-header { 
-      display: flex; 
-      justify-content: space-between; 
-      font-size: 13px; 
-      font-weight: 700; 
-      color: var(--text-muted); 
-      text-transform: uppercase; 
-      margin-top: 16px; 
-      margin-bottom: 10px; 
-      border-top: 1px solid #f0f0f0; 
-      padding-top: 12px; 
+    .ifyllt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ifyllt-row .label { color: var(--text-muted); font-size: 14px; font-weight: 600; }
+    .ifyllt-row .datum { font-weight: 700; font-size: 16px; }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 16px;
+      margin-bottom: 10px;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 12px;
     }
 
     .result-card { background: var(--accent-green); border-radius: var(--border-radius); padding: 16px; margin-bottom: 16px; }
@@ -101,69 +108,88 @@
     .person-box .name { font-size: 12px; color: var(--text-muted); }
     .person-box .amount { font-size: 18px; font-weight: 700; margin: 4px 0; }
 
+    .info-box { background: var(--input-bg); border-radius: var(--border-radius); padding: 16px; margin-bottom: 16px; box-shadow: none; }
+
     .chart-container { position: relative; width: 100%; max-width: 280px; margin: 16px auto; }
-    
-    .btn-action { 
-      background: #2c3e50; 
-      color: white; 
-      width: 100%; 
-      border: none; 
-      padding: 16px; 
-      border-radius: var(--border-radius); 
-      font-size: 16px; 
-      font-weight: 600; 
-      cursor: pointer; 
-      active: opacity 0.8;
+    .chart-container.wide { max-width: 100%; }
+
+    .btn-action {
+      background: #2c3e50;
+      color: white;
+      width: 100%;
+      border: none;
+      padding: 16px;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .cat-list-item { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 12px 0; 
-      border-bottom: 1px solid #f0f0f0; 
+    .cat-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
       font-weight: 600;
     }
-    
-    .btn-delete-cat { 
-      background: var(--accent-red); 
-      color: var(--accent-red-text); 
-      border: none; 
-      border-radius: 8px; 
-      padding: 8px 12px; 
-      font-weight: 600; 
-      font-size: 13px; 
-      cursor: pointer; 
+
+    .btn-delete-cat {
+      background: var(--accent-red);
+      color: var(--accent-red-text);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
     }
 
-    /* Mobilanpassad Bottom Navigation Bar (iOS-style) */
-    .nav-bar { 
-      position: fixed; 
-      bottom: 0; 
-      left: 0; 
-      right: 0; 
-      background: rgba(255, 255, 255, 0.92); 
+    .btn-remove-row {
+      background: var(--accent-red);
+      color: var(--accent-red-text);
+      border: none;
+      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-add-link {
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 0 12px 0;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(10px);
-      border-top: 0.5px solid #d1d1d6; 
-      display: flex; 
-      justify-content: space-around; 
-      padding: 10px 0 calc(10px + env(safe-area-inset-bottom)) 0; 
-      z-index: 1000; 
+      border-top: 0.5px solid #d1d1d6;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 calc(10px + env(safe-area-inset-bottom)) 0;
+      z-index: 1000;
       width: 100%;
     }
-    
-    .nav-item { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      font-size: 10px; 
-      color: var(--text-muted); 
-      border: none; 
-      background: none; 
-      cursor: pointer; 
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      cursor: pointer;
       flex: 1;
     }
-    
+
     .nav-item.active { color: #007aff; font-weight: 700; }
     .nav-icon { font-size: 22px; margin-bottom: 2px; }
   </style>
@@ -174,9 +200,15 @@
   <div id="tab-berakna" class="tab-content active">
     <div class="header-title">Beräkna</div>
 
+    <div class="card ifyllt-row">
+      <span class="label">Ifyllt</span>
+      <span class="datum" id="ifyllt-datum"></span>
+      <span class="pill pill-grey" id="ifyllt-vecka" style="margin-bottom:0;"></span>
+    </div>
+
     <div class="card">
       <div class="card-title">💰 INKOMSTER</div>
-      
+
       <div>
         <span class="pill pill-blue">Anton</span>
         <div class="input-row">
@@ -195,10 +227,8 @@
 
       <div style="margin-top: 16px;">
         <span class="pill pill-purple">GEMENSAMMA INKOMSTER</span>
-        <div class="input-row">
-          <div class="input-label"><main>Barnbidrag / Gemensamt</main></div>
-          <input type="number" id="gem-inkomst" class="num-input" value="4650" oninput="calculateAll()">
-        </div>
+        <div id="gem-inkomst-list"></div>
+        <div class="btn-add-link" onclick="addGemInkomst()">+ Lägg till (t.ex. barnbidrag)</div>
       </div>
     </div>
 
@@ -215,7 +245,7 @@
     <!-- RESULTAT -->
     <div class="card">
       <div class="card-title">📊 RESULTAT</div>
-      
+
       <div class="result-card">
         <div class="card-title" style="color: var(--accent-green-text);">GEMENSAMMA UTGIFTER</div>
         <div class="result-title" id="totalt-utgifter-text">0 kr totalt</div>
@@ -240,13 +270,61 @@
         <canvas id="expenseChart"></canvas>
       </div>
 
+      <div class="info-box">
+        <div>🏦 <b>Anton</b> sätter in <b id="satter-in-anton">0 kr</b> på gemensamt konto</div>
+        <div style="margin-top: 10px;">🏦 <b>Mona</b> sätter in <b id="satter-in-mona">0 kr</b> på gemensamt konto</div>
+      </div>
+
+      <div class="info-box">
+        <div class="card-title" style="margin-bottom: 10px;">AVVIKELSE FRÅN SCHABLON</div>
+        <div id="avvikelse-anton"></div>
+        <div id="avvikelse-mona" style="margin-top: 10px;"></div>
+      </div>
+
       <button class="btn-action" onclick="saveToSheets()">💾 Spara denna månad</button>
     </div>
   </div>
 
-  <!-- FLIK 2: INSTÄLLNINGAR -->
+  <!-- FLIK 2: HISTORIK -->
+  <div id="tab-historik" class="tab-content">
+    <div class="header-title">Historik</div>
+    <div class="card">
+      <div class="card-title">UTGIFTER PER KATEGORI ÖVER TID</div>
+      <div class="chart-container wide">
+        <canvas id="historikChart"></canvas>
+      </div>
+      <div style="font-size: 12px; color: var(--text-muted);">
+        Bygger på varje sparad månad (💾 Spara denna månad). Spara några månader i rad för att se en trend.
+      </div>
+    </div>
+  </div>
+
+  <!-- FLIK 3: LOGG -->
+  <div id="tab-logg" class="tab-content">
+    <div class="header-title">Logg</div>
+    <div class="card">
+      <div class="card-title">ALLA TRANSAKTIONER</div>
+      <div id="logg-list">
+        <div style="color: var(--text-muted); font-size: 14px;">Laddar...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLIK 4: INSTÄLLNINGAR -->
   <div id="tab-installningar" class="tab-content">
     <div class="header-title">Inställningar</div>
+
+    <div class="card">
+      <div class="card-title">🎯 SCHABLON (MÅL PER MÅNAD)</div>
+      <div class="input-row">
+        <div class="input-label"><main>Anton</main></div>
+        <input type="number" id="schablon-anton" class="num-input" oninput="saveSchablon()">
+      </div>
+      <div class="input-row">
+        <div class="input-label"><main>Mona</main></div>
+        <input type="number" id="schablon-mona" class="num-input" oninput="saveSchablon()">
+      </div>
+    </div>
 
     <div class="card">
       <div class="card-title">📁 SKAPA NY KATEGORI</div>
@@ -275,6 +353,14 @@
     <button class="nav-item active" onclick="switchTab('berakna', this)">
       <span class="nav-icon">📊</span>
       <span>BERÄKNA</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('historik', this)">
+      <span class="nav-icon">🗓️</span>
+      <span>HISTORIK</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('logg', this)">
+      <span class="nav-icon">📈</span>
+      <span>LOGG</span>
     </button>
     <button class="nav-item" onclick="switchTab('installningar', this)">
       <span class="nav-icon">⚙️</span>
